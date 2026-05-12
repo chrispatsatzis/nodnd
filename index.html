@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nodnd.net — Don't message people on Do Not Disturb in Teams</title>
+
+  <!-- OG / Social preview tags (renders well when pasted into Teams) -->
+  <meta property="og:title" content="nodnd.net" />
+  <meta property="og:description" content="If someone is on Do Not Disturb in Microsoft Teams, don't message them. Even with DND on, Teams still shows a badge — and that badge breaks focus." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://nodnd.net" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="nodnd.net" />
+  <meta name="twitter:description" content="If someone is on Do Not Disturb in Microsoft Teams, don't message them. Even with DND on, Teams still shows a badge — and that badge breaks focus." />
+  <meta name="description" content="If someone is on Do Not Disturb in Microsoft Teams, don't message them. Even with DND on, Teams still shows a badge — and that badge breaks focus." />
+
+  <style>
+    :root {
+      /* Teams dark theme palette */
+      --bg:           #1f1f1f;
+      --surface:      #2d2d2d;
+      --surface2:     #383838;
+      --border:       #404040;
+      --text:         #e8e8e8;
+      --muted:        #8a8a8a;
+      /* Teams brand purple */
+      --teams:        #6264a7;
+      --teams-dim:    #2e2f4f;
+      --teams-bright: #8b8cc8;
+      /* Teams DND red */
+      --dnd:          #c4314b;
+      --dnd-dim:      #4a1520;
+      /* Teams available green */
+      --green:        #92c353;
+      --green-dim:    #2d3f1a;
+      --yellow:       #f8d262;
+      --rule-bg:      #252040;
+      --rule-border:  #6264a7;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      /* Teams uses Segoe UI */
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 3rem;
+      flex: 1;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    /* Teams DND status indicator — red circle with a horizontal line */
+    .dnd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--dnd-dim);
+      border: 1px solid var(--dnd);
+      color: var(--dnd);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+
+    /* CSS-drawn Teams DND icon: red circle with white minus bar */
+    .teams-dnd-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--dnd);
+      position: relative;
+      flex-shrink: 0;
+      animation: dnd-pulse 2.5s ease-in-out infinite;
+    }
+
+    .teams-dnd-icon::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 2px;
+      background: #fff;
+      border-radius: 1px;
+    }
+
+    @keyframes dnd-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(196, 49, 75, 0.5); }
+      50%       { box-shadow: 0 0 0 5px rgba(196, 49, 75, 0); }
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    h1 .dnd-word { color: var(--dnd); }
+    h1 .teams-word { color: var(--teams-bright); }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── Sections ── */
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    p { color: var(--text); margin-bottom: 0.9rem; }
+    p:last-child { margin-bottom: 0; }
+
+    strong { color: #fff; }
+
+    em {
+      font-style: normal;
+      color: var(--yellow);
+    }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--dnd);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-size: 1rem;
+    }
+
+    /* ── Teams badge mockup ── */
+    .badge-mockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      margin: 1.25rem 0;
+      font-size: 0.85rem;
+    }
+
+    .taskbar-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--teams);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .taskbar-icon .badge-num {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--dnd);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--surface);
+    }
+
+    .badge-mockup-text {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .badge-mockup-text strong { color: var(--dnd); }
+
+    /* ── Before / After ── */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (max-width: 520px) {
+      .scenario-grid { grid-template-columns: 1fr; }
+    }
+
+    .scenario {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+
+    .scenario.bad  { border-top: 3px solid var(--dnd); }
+    .scenario.good { border-top: 3px solid var(--green); }
+
+    .scenario-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .scenario.bad  .scenario-label { color: var(--dnd); }
+    .scenario.good .scenario-label { color: var(--green); }
+
+    /* ── Teams-style chat bubbles ── */
+    .chat { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    .chat-msg { display: flex; gap: 0.5rem; align-items: flex-start; }
+
+    /* Teams avatar */
+    .t-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      position: relative;
+    }
+
+    .t-avatar svg { display: block; width: 100%; height: 100%; }
+
+    /* Teams status dot — smaller and Teams-accurate */
+    .t-status {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 2px solid var(--surface);
+    }
+
+    .t-status.dnd {
+      background: var(--dnd);
+    }
+
+    /* DND status: red circle with white minus bar — matches Teams exactly */
+    .t-status.dnd::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 4px;
+      height: 1.5px;
+      background: #fff;
+      border-radius: 1px;
+    }
+
+    .t-status.online { background: var(--green); }
+
+    .msg-body { flex: 1; min-width: 0; }
+
+    .msg-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .msg-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .msg-time {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .msg-status-label {
+      font-size: 0.6rem;
+      color: var(--dnd);
+      background: var(--dnd-dim);
+      padding: 0.05rem 0.35rem;
+      border-radius: 3px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .msg-status-label.available {
+      color: var(--green);
+      background: var(--green-dim);
+    }
+
+    .msg-bubble {
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--surface2);
+      padding: 0.4rem 0.65rem;
+      border-radius: 0 8px 8px 8px;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .msg-bubble.self {
+      background: #2c3f6e;
+      color: #d4e4ff;
+      border-radius: 8px 0 8px 8px;
+    }
+
+    .msg-bubble.system-note {
+      background: var(--green-dim);
+      color: #92c353;
+      border-radius: 8px;
+      font-style: italic;
+      font-size: 0.75rem;
+    }
+
+    .badge-indicator {
+      font-size: 0.7rem;
+      color: var(--dnd);
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--dnd-dim);
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .scenario-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      line-height: 1.5;
+    }
+
+    /* ── The Rule ── */
+    .rule-box {
+      background: var(--rule-bg);
+      border: 1px solid var(--rule-border);
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      text-align: center;
+    }
+
+    .rule-box .rule-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--teams-bright);
+      margin-bottom: 0.75rem;
+    }
+
+    .rule-box .rule-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.45;
+      margin-bottom: 0;
+    }
+
+    .rule-box .rule-text em { color: var(--teams-bright); }
+
+    .rule-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+    }
+
+    .remind-tip {
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .remind-tip code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      color: var(--teams-bright);
+      background: var(--teams-dim);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* ── URL copy block ── */
+    .url-copy {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .url-copy p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .url-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s;
+      position: relative;
+      user-select: none;
+    }
+
+    .url-pill:hover { border-color: var(--teams); }
+
+    .copy-icon { font-size: 0.8rem; color: var(--muted); }
+
+    .copied-toast {
+      display: none;
+      position: absolute;
+      top: -2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #1a1a1a;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .url-pill.copied .copied-toast { display: block; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<main>
+
+  <!-- Header -->
+  <header>
+    <div class="dnd-badge">
+      <span class="teams-dnd-icon"></span>
+      Do Not Disturb · Microsoft Teams
+    </div>
+    <h1>If they're on <span class="dnd-word">DND</span> in <span class="teams-word">Teams</span>,<br>don't send it.</h1>
+    <p class="tagline">
+      Do Not Disturb doesn't mean "send it anyway, they'll see it later."
+      It means <strong>do not disturb</strong>.
+    </p>
+  </header>
+
+  <!-- Why even silent messages break focus -->
+  <section>
+    <h2>Even with DND on, Teams still shows the badge</h2>
+    <p>
+      When you enable Do Not Disturb in Teams, notifications are suppressed —
+      no sound, no banner, no pop-up. But <em>the unread badge still appears</em>:
+      on the Teams icon in the Windows taskbar, on the activity bell, and on
+      the chat thread itself.
+    </p>
+
+    <div class="badge-mockup">
+      <div class="taskbar-icon">
+        T
+        <span class="badge-num">1</span>
+      </div>
+      <div class="badge-mockup-text">
+        <strong>Badge still appears</strong> on the Teams taskbar icon<br>
+        even when the recipient has DND enabled.
+      </div>
+    </div>
+
+    <p>
+      The moment someone glances at their screen — even to check the time —
+      that badge is visible. Research on <strong>attention residue</strong>
+      shows that the mere awareness of an unread message pulls cognitive load
+      away from the current task, often for <em>ten to twenty minutes</em>.
+    </p>
+    <div class="callout">
+      A notification badge is an <strong>unanswered question</strong> parked
+      at the edge of someone's vision. They can't un-see it. They can't fully
+      stop wondering what it says. The flow is already broken.
+    </div>
+    <p>
+      When someone sets their Teams status to Do Not Disturb — or when Teams
+      automatically sets it during a <strong>Focus session</strong> via Viva
+      Insights — they're telling you: <em>"right now, the cost of an
+      interruption is especially high."</em> Sending a message into that
+      window forces exactly the context switch they were trying to prevent.
+    </p>
+  </section>
+
+  <hr />
+
+  <!-- Before / After -->
+  <section>
+    <h2>What this looks like in Teams</h2>
+
+    <div class="scenario-grid">
+
+      <!-- Bad -->
+      <div class="scenario bad">
+        <div class="scenario-label">✗ What most people do</div>
+        <div class="chat">
+
+          <div class="chat-msg">
+            <div class="t-avatar">
+              <!-- Dinesh Chugtai -->
+              <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" fill="#5a2d82"/>
+                <rect x="13" y="27" width="8" height="7" fill="#c8855a"/>
+                <path d="M13 31 Q17 32.5 21 31" stroke="#e8c84a" stroke-width="1" fill="none"/>
+                <ellipse cx="17" cy="20" rx="9" ry="9.5" fill="#d4956a"/>
+                <path d="M8 16 Q8 5 17 5 Q26 5 26 16 Q24 10 17 10 Q10 10 8 16Z" fill="#1a1008"/>
+                <ellipse cx="8" cy="20" rx="1.5" ry="2" fill="#c08060"/>
+                <ellipse cx="26" cy="20" rx="1.5" ry="2" fill="#c08060"/>
+                <circle cx="13.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="20.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="13.7" cy="20.2" r="0.85" fill="#1a0808"/>
+                <circle cx="20.7" cy="20.2" r="0.85" fill="#1a0808"/>
+                <path d="M11.5 17.5 Q13.5 16.8 15.5 17.5" stroke="#1a1008" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M18.5 17.5 Q20.5 16.8 22.5 17.5" stroke="#1a1008" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M14 24 Q17 25 20 24" stroke="#a06040" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="msg-name">Dinesh</span>
+                <span class="msg-time">2:07 PM</span>
+              </div>
+              <span class="msg-bubble self">Hey, quick question when you get a chance 👋</span>
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <div class="t-avatar">
+              <!-- Gilfoyle -->
+              <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" fill="#1a1a1a"/>
+                <rect x="13" y="27" width="8" height="7" fill="#e8d0bc"/>
+                <ellipse cx="17" cy="20" rx="9" ry="9.5" fill="#e8d0bc"/>
+                <path d="M8 17 Q7 5 17 5 Q27 5 26 17 Q25 10 17 10 Q9 10 8 17Z" fill="#1a1a1a"/>
+                <path d="M8 17 Q7 20 8 24" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+                <path d="M26 17 Q27 20 26 24" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+                <ellipse cx="8" cy="20" rx="1.5" ry="2" fill="#d8c0aa"/>
+                <ellipse cx="26" cy="20" rx="1.5" ry="2" fill="#d8c0aa"/>
+                <ellipse cx="13.5" cy="20" rx="1.5" ry="1.1" fill="#fff"/>
+                <ellipse cx="20.5" cy="20" rx="1.5" ry="1.1" fill="#fff"/>
+                <circle cx="13.7" cy="20.1" r="0.8" fill="#0a0a0a"/>
+                <circle cx="20.7" cy="20.1" r="0.8" fill="#0a0a0a"/>
+                <path d="M11.5 17.8 L15.5 17.8" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <path d="M18.5 17.8 L22.5 17.8" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <path d="M14.5 23 Q17 22.5 19.5 23" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <path d="M15.5 24.5 Q17 25.5 18.5 24.5" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <path d="M15.8 25 Q17 26 18.2 25" stroke="#1a1a1a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="t-status dnd"></span>
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="msg-name">Gilfoyle</span>
+                <span class="msg-status-label">Do Not Disturb</span>
+              </div>
+              <!-- silence -->
+            </div>
+          </div>
+
+        </div>
+        <div class="badge-indicator">
+          ⬤ badge on Teams taskbar icon — delivered
+        </div>
+        <p class="scenario-note">
+          Gilfoyle is deep in a kernel patch. The badge appears on his taskbar.
+          He glances at it. Flow broken — before he's read a single word.
+        </p>
+      </div>
+
+      <!-- Good -->
+      <div class="scenario good">
+        <div class="scenario-label">✓ What you should do</div>
+        <div class="chat">
+
+          <div class="chat-msg">
+            <div class="t-avatar">
+              <!-- Richard Hendricks -->
+              <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" fill="#1e4d7c"/>
+                <rect x="12" y="27" width="10" height="7" fill="#f0c8a0"/>
+                <rect x="8" y="30" width="18" height="4" fill="#1e4d7c"/>
+                <ellipse cx="17" cy="20" rx="9" ry="9.5" fill="#f0c8a0"/>
+                <path d="M8 18 Q7 8 17 7 Q27 7 26 18 Q24 12 17 12 Q10 12 8 18Z" fill="#6b3a22"/>
+                <path d="M8 18 Q6 16 7 13" stroke="#6b3a22" stroke-width="2" fill="none"/>
+                <ellipse cx="8" cy="20" rx="1.5" ry="2" fill="#e8b890"/>
+                <ellipse cx="26" cy="20" rx="1.5" ry="2" fill="#e8b890"/>
+                <circle cx="13.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="20.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="13.8" cy="20.2" r="0.85" fill="#1a0f08"/>
+                <circle cx="20.8" cy="20.2" r="0.85" fill="#1a0f08"/>
+                <path d="M11.5 17.5 Q13.5 16.5 15.5 17.5" stroke="#6b3a22" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M18.5 17.5 Q20.5 16.5 22.5 17.5" stroke="#6b3a22" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M14 24 Q17 24.5 20 24" stroke="#c09070" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="msg-name">Richard</span>
+                <span class="msg-time">2:07 PM</span>
+              </div>
+              <span class="msg-bubble system-note">Gilfoyle is on DND — reminder set for 3 PM</span>
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <div class="t-avatar">
+              <!-- Gilfoyle -->
+              <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" fill="#1a1a1a"/>
+                <rect x="13" y="27" width="8" height="7" fill="#e8d0bc"/>
+                <ellipse cx="17" cy="20" rx="9" ry="9.5" fill="#e8d0bc"/>
+                <path d="M8 17 Q7 5 17 5 Q27 5 26 17 Q25 10 17 10 Q9 10 8 17Z" fill="#1a1a1a"/>
+                <path d="M8 17 Q7 20 8 24" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+                <path d="M26 17 Q27 20 26 24" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+                <ellipse cx="8" cy="20" rx="1.5" ry="2" fill="#d8c0aa"/>
+                <ellipse cx="26" cy="20" rx="1.5" ry="2" fill="#d8c0aa"/>
+                <ellipse cx="13.5" cy="20" rx="1.5" ry="1.1" fill="#fff"/>
+                <ellipse cx="20.5" cy="20" rx="1.5" ry="1.1" fill="#fff"/>
+                <circle cx="13.7" cy="20.1" r="0.8" fill="#0a0a0a"/>
+                <circle cx="20.7" cy="20.1" r="0.8" fill="#0a0a0a"/>
+                <path d="M11.5 17.8 L15.5 17.8" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <path d="M18.5 17.8 L22.5 17.8" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <path d="M14.5 23 Q17 22.5 19.5 23" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <path d="M15.5 24.5 Q17 25.5 18.5 24.5" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <path d="M15.8 25 Q17 26 18.2 25" stroke="#1a1a1a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="t-status online"></span>
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="msg-name">Gilfoyle</span>
+                <span class="msg-status-label available">Available</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <div class="t-avatar">
+              <!-- Richard Hendricks -->
+              <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" fill="#1e4d7c"/>
+                <rect x="12" y="27" width="10" height="7" fill="#f0c8a0"/>
+                <rect x="8" y="30" width="18" height="4" fill="#1e4d7c"/>
+                <ellipse cx="17" cy="20" rx="9" ry="9.5" fill="#f0c8a0"/>
+                <path d="M8 18 Q7 8 17 7 Q27 7 26 18 Q24 12 17 12 Q10 12 8 18Z" fill="#6b3a22"/>
+                <path d="M8 18 Q6 16 7 13" stroke="#6b3a22" stroke-width="2" fill="none"/>
+                <ellipse cx="8" cy="20" rx="1.5" ry="2" fill="#e8b890"/>
+                <ellipse cx="26" cy="20" rx="1.5" ry="2" fill="#e8b890"/>
+                <circle cx="13.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="20.5" cy="20" r="1.4" fill="#fff"/>
+                <circle cx="13.8" cy="20.2" r="0.85" fill="#1a0f08"/>
+                <circle cx="20.8" cy="20.2" r="0.85" fill="#1a0f08"/>
+                <path d="M11.5 17.5 Q13.5 16.5 15.5 17.5" stroke="#6b3a22" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M18.5 17.5 Q20.5 16.5 22.5 17.5" stroke="#6b3a22" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <path d="M14 24 Q17 24.5 20 24" stroke="#c09070" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="msg-name">Richard</span>
+                <span class="msg-time">3:02 PM</span>
+              </div>
+              <span class="msg-bubble self">Hey, got a quick question about the compression algo…</span>
+            </div>
+          </div>
+
+        </div>
+        <p class="scenario-note">
+          Richard waits. Gilfoyle finishes his Focus session and flips to Available.
+          Richard messages then. No broken flow — and a much less withering response.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- The Rule -->
+  <section>
+    <div class="rule-box">
+      <div class="rule-title">The Rule</div>
+      <p class="rule-text">
+        If someone is on DND in Teams, <em>wait</em>.<br>
+        Set a reminder. Message them<br>when they're Available.
+      </p>
+      <p class="rule-sub">That's it. That's the whole rule.</p>
+      <div class="remind-tip">
+        In Teams you can type <code>/remind</code> to set a reminder,<br>
+        or use <strong>Viva Insights</strong> to check when Focus sessions end.
+      </div>
+    </div>
+  </section>
+
+  <!-- URL copy -->
+  <div class="url-copy">
+    <p>Share this page</p>
+    <div class="url-pill" id="urlPill" onclick="copyUrl()" title="Click to copy">
+      <span class="copied-toast">Copied!</span>
+      nodnd.net
+      <span class="copy-icon">⎘</span>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>inspired by <a href="https://nohello.net" target="_blank" rel="noopener">nohello.net</a></p>
+</footer>
+
+<script>
+  function copyUrl() {
+    var url = 'https://nodnd.net';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(showCopied, showCopied);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showCopied();
+    }
+  }
+
+  function showCopied() {
+    var pill = document.getElementById('urlPill');
+    pill.classList.add('copied');
+    setTimeout(function() { pill.classList.remove('copied'); }, 1800);
+  }
+</script>
+
+</body>
+</html>
