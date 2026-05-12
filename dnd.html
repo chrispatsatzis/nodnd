@@ -500,6 +500,164 @@
       border-top: 1px solid var(--border);
       margin: 2.5rem 0;
     }
+
+    /* ── Scroll animations ── */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .animate-in.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Focus cost counter ── */
+    .focus-cost {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.75rem;
+      gap: 0.2rem;
+    }
+    .focus-cost-num {
+      font-size: clamp(2.8rem, 8vw, 4.5rem);
+      font-weight: 800;
+      color: var(--dnd);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .focus-cost-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Research stats ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    @media (max-width: 520px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--dnd);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .stat-unit {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-left: 0.1rem;
+    }
+    .stat-desc {
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.95rem;
+    }
+    .checklist .check {
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+    .checklist code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      color: var(--teams-bright);
+      background: var(--teams-dim);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    /* ── Share section ── */
+    .share-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .team-msg-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--teams-dim);
+      border: 1px solid var(--teams);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      color: var(--teams-bright);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+    .team-msg-btn:hover { background: #3a3c6a; border-color: var(--teams-bright); }
+    .team-msg-preview {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0.5rem auto 0;
+      text-align: left;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+    .team-msg-preview:hover { border-color: var(--teams); }
+    .team-msg-copied {
+      margin-top: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--green);
+      font-weight: 600;
+    }
+    .share-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    .share-hint kbd {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.1rem 0.35rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+    }
   </style>
 </head>
 <body>
@@ -517,10 +675,14 @@
       Do Not Disturb doesn't mean "send it anyway, they'll see it later."
       It means <strong>do not disturb</strong>.
     </p>
+    <div class="focus-cost" id="focusCost">
+      <span class="focus-cost-num" id="focusCostNum">0</span>
+      <span class="focus-cost-label">minutes of focus lost per interruption</span>
+    </div>
   </header>
 
   <!-- Why even silent messages break focus -->
-  <section>
+  <section class="animate-in">
     <h2>Even with DND on, Teams still shows the badge</h2>
     <p>
       When you enable Do Not Disturb in Teams, notifications are suppressed —
@@ -562,8 +724,29 @@
 
   <hr />
 
+  <!-- Research stats -->
+  <section class="animate-in">
+    <h2>The research backs it up</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">23<span class="stat-unit">min</span></div>
+        <div class="stat-desc">Average time to regain full focus after a single interruption — Gloria Mark, UC Irvine</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">64<span class="stat-unit">%</span></div>
+        <div class="stat-desc">of workers say they can't go an hour without being interrupted — Udemy 2018 Workplace Distraction Report</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">6<span class="stat-unit">h</span></div>
+        <div class="stat-desc">of productive work lost per week per knowledge worker due to unnecessary interruptions — McKinsey</div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
   <!-- Before / After -->
-  <section>
+  <section class="animate-in">
     <h2>What this looks like in Teams</h2>
 
     <div class="scenario-grid">
@@ -754,9 +937,23 @@
 
   <hr />
 
+  <!-- How to respect DND -->
+  <section class="animate-in">
+    <h2>How to respect DND in Teams</h2>
+    <ul class="checklist">
+      <li><span class="check">✓</span><span>Check someone's status <strong>before</strong> you open a chat window.</span></li>
+      <li><span class="check">✓</span><span>If they're on DND, <strong>set a reminder</strong> — type <code>/remind</code> in Teams or create a task for yourself.</span></li>
+      <li><span class="check">✓</span><span>Ask yourself: <em>is this truly urgent?</em> If your message can wait an hour, it should.</span></li>
+      <li><span class="check">✓</span><span>For genuine emergencies, use a <strong>phone call</strong> — which Teams DND <em>can</em> be configured to allow.</span></li>
+      <li><span class="check">✓</span><span>Encourage your team to set DND and <strong>honour it by example</strong> — culture change starts with you.</span></li>
+    </ul>
+  </section>
+
+  <hr />
+
   <!-- The Rule -->
-  <section>
-    <div class="rule-box">
+  <section class="animate-in">
+    <div class="rule-box animate-in">
       <div class="rule-title">The Rule</div>
       <p class="rule-text">
         If someone is on DND in Teams, <em>wait</em>.<br>
@@ -770,14 +967,24 @@
     </div>
   </section>
 
-  <!-- URL copy -->
-  <div class="url-copy">
+  <!-- Share section -->
+  <div class="url-copy animate-in">
     <p>Share this page</p>
-    <div class="url-pill" id="urlPill" onclick="copyUrl()" title="Click to copy">
-      <span class="copied-toast">Copied!</span>
-      nodnd.net
-      <span class="copy-icon">⎘</span>
+    <div class="share-row">
+      <div class="url-pill" id="urlPill" onclick="copyUrl()" title="Click to copy URL">
+        <span class="copied-toast">Copied!</span>
+        nodnd.net
+        <span class="copy-icon">⎘</span>
+      </div>
+      <button class="team-msg-btn" id="teamMsgBtn" onclick="copyTeamMsg()" title="Copy a ready-to-send Teams message">
+        Copy team message
+      </button>
     </div>
+    <div class="team-msg-preview" id="teamMsgPreview" style="display:none">
+      <div class="team-msg-text" id="teamMsgText">Hey team 👋 — just a reminder: if someone is on Do Not Disturb in Teams, please don't message them. The badge still appears and breaks focus even without a notification. ➜ nodnd.net</div>
+      <div class="team-msg-copied" id="teamMsgCopied" style="display:none">✓ Copied to clipboard</div>
+    </div>
+    <p class="share-hint">Press <kbd>S</kbd> to share</p>
   </div>
 
 </main>
@@ -789,18 +996,19 @@
 <script>
   function copyUrl() {
     var url = 'https://nodnd.net';
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(showCopied, showCopied);
+    shareOrCopy(url, function() { showCopied(); });
+  }
+
+  function shareOrCopy(text, fallback) {
+    if (navigator.share) {
+      navigator.share({ title: 'nodnd.net', text: 'If someone is on Do Not Disturb in Teams, don\'t message them.', url: text }).catch(function() { fallback(); });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(fallback, fallback);
     } else {
       var ta = document.createElement('textarea');
-      ta.value = url;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showCopied();
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); fallback();
     }
   }
 
@@ -809,6 +1017,52 @@
     pill.classList.add('copied');
     setTimeout(function() { pill.classList.remove('copied'); }, 1800);
   }
+
+  function copyTeamMsg() {
+    var msg = "Hey team 👋 — just a reminder: if someone is on Do Not Disturb in Teams, please don't message them. The badge still appears and breaks focus even without a notification. ➜ nodnd.net";
+    var preview = document.getElementById('teamMsgPreview');
+    var copied = document.getElementById('teamMsgCopied');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(function() { showTeamCopied(preview, copied); }, function() {});
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); showTeamCopied(preview, copied);
+    }
+  }
+
+  function showTeamCopied(preview, copied) {
+    preview.style.display = 'block';
+    copied.style.display = 'block';
+    setTimeout(function() { copied.style.display = 'none'; }, 2500);
+  }
+
+  // Keyboard shortcut: S to share
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 's' || e.key === 'S') {
+      if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+      copyUrl();
+    }
+  });
+
+  // Scroll animations
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.animate-in').forEach(function(el) { io.observe(el); });
+
+  // Focus cost counter
+  (function() {
+    var target = 23, el = document.getElementById('focusCostNum'), start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / 1400, 1);
+      el.textContent = Math.round(p * p * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    window.addEventListener('load', function() { requestAnimationFrame(step); });
+  })();
 </script>
 
 </body>
