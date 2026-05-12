@@ -981,7 +981,7 @@
       </button>
     </div>
     <div class="team-msg-preview" id="teamMsgPreview" style="display:none">
-      <div class="team-msg-text" id="teamMsgText">Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → nodnd.net</div>
+      <div class="team-msg-text" id="teamMsgText">Quick reminder: if someone's on Do Not Disturb in Teams, please wait before messaging — the unread badge still appears and breaks their focus even without a sound. → nodnd.net</div>
       <div class="team-msg-copied" id="teamMsgCopied" style="display:none">✓ Copied to clipboard</div>
     </div>
     <p class="share-hint">Press <kbd>S</kbd> to share</p>
@@ -1019,7 +1019,7 @@
   }
 
   function copyTeamMsg() {
-    var msg = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → " + window.location.href;
+    var msg = "Quick reminder: if someone's on Do Not Disturb in Teams, please wait before messaging — the unread badge still appears and breaks their focus even without a sound. → " + window.location.href;
     var preview = document.getElementById('teamMsgPreview');
     var copied = document.getElementById('teamMsgCopied');
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1051,7 +1051,7 @@
     var el = document.getElementById('urlPillText');
     if (el) el.textContent = window.location.host + window.location.pathname.replace(/\/$/, '');
     var msgEl = document.getElementById('teamMsgText');
-    if (msgEl) msgEl.textContent = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → " + window.location.href;
+    if (msgEl) msgEl.textContent = "Quick reminder: if someone's on Do Not Disturb in Teams, please wait before messaging — the unread badge still appears and breaks their focus even without a sound. → " + window.location.href;
   })();
 
   // Scroll animations
