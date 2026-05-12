@@ -981,7 +981,7 @@
       </button>
     </div>
     <div class="team-msg-preview" id="teamMsgPreview" style="display:none">
-      <div class="team-msg-text" id="teamMsgText">Hey team 👋 — just a reminder: if someone is on Do Not Disturb in Teams, please don't message them. The badge still appears and breaks focus even without a notification. ➜ nodnd.net</div>
+      <div class="team-msg-text" id="teamMsgText">Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → nodnd.net</div>
       <div class="team-msg-copied" id="teamMsgCopied" style="display:none">✓ Copied to clipboard</div>
     </div>
     <p class="share-hint">Press <kbd>S</kbd> to share</p>
@@ -1019,7 +1019,7 @@
   }
 
   function copyTeamMsg() {
-    var msg = "Hey team 👋 — just a reminder: if someone is on Do Not Disturb in Teams, please don't message them. The badge still appears and breaks focus even without a notification. ➜ nodnd.net";
+    var msg = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → nodnd.net";
     var preview = document.getElementById('teamMsgPreview');
     var copied = document.getElementById('teamMsgCopied');
     if (navigator.clipboard && navigator.clipboard.writeText) {
