@@ -1046,10 +1046,12 @@
     }
   });
 
-  // Set URL pill text to actual current URL
+  // Set URL pill text and team message preview to actual current URL
   (function() {
     var el = document.getElementById('urlPillText');
     if (el) el.textContent = window.location.host + window.location.pathname.replace(/\/$/, '');
+    var msgEl = document.getElementById('teamMsgText');
+    if (msgEl) msgEl.textContent = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → " + window.location.href;
   })();
 
   // Scroll animations
