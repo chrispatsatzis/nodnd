@@ -9,7 +9,7 @@
   <meta property="og:title" content="nodnd.net" />
   <meta property="og:description" content="If someone is on Do Not Disturb in Microsoft Teams, don't message them. Even with DND on, Teams still shows a badge — and that badge breaks focus." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://nodnd.net" />
+  <meta property="og:url" content="https://chrispatsatzis.github.io/nodnd/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="nodnd.net" />
   <meta name="twitter:description" content="If someone is on Do Not Disturb in Microsoft Teams, don't message them. Even with DND on, Teams still shows a badge — and that badge breaks focus." />
@@ -973,7 +973,7 @@
     <div class="share-row">
       <div class="url-pill" id="urlPill" onclick="copyUrl()" title="Click to copy URL">
         <span class="copied-toast">Copied!</span>
-        nodnd.net
+        <span id="urlPillText">nodnd.net</span>
         <span class="copy-icon">⎘</span>
       </div>
       <button class="team-msg-btn" id="teamMsgBtn" onclick="copyTeamMsg()" title="Copy a ready-to-send Teams message">
@@ -995,13 +995,13 @@
 
 <script>
   function copyUrl() {
-    var url = 'https://nodnd.net';
+    var url = window.location.href;
     shareOrCopy(url, function() { showCopied(); });
   }
 
   function shareOrCopy(text, fallback) {
     if (navigator.share) {
-      navigator.share({ title: 'nodnd.net', text: 'If someone is on Do Not Disturb in Teams, don\'t message them.', url: text }).catch(function() { fallback(); });
+      navigator.share({ title: document.title, text: 'If someone is on Do Not Disturb in Teams, don\'t message them.', url: text }).catch(function() { fallback(); });
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(fallback, fallback);
     } else {
@@ -1019,7 +1019,7 @@
   }
 
   function copyTeamMsg() {
-    var msg = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → nodnd.net";
+    var msg = "Friendly reminder: Do Not Disturb means do not disturb. The unread badge still shows up and breaks focus. You're welcome. → " + window.location.href;
     var preview = document.getElementById('teamMsgPreview');
     var copied = document.getElementById('teamMsgCopied');
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1045,6 +1045,12 @@
       copyUrl();
     }
   });
+
+  // Set URL pill text to actual current URL
+  (function() {
+    var el = document.getElementById('urlPillText');
+    if (el) el.textContent = window.location.host + window.location.pathname.replace(/\/$/, '');
+  })();
 
   // Scroll animations
   var io = new IntersectionObserver(function(entries) {
